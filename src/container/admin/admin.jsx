@@ -1,7 +1,12 @@
 import React, { Component } from 'react'
 import {Redirect} from 'react-router-dom'
 import {connect} from 'react-redux'
+import {Layout} from 'antd';
 import {deleteUserInfo} from '../../redux/actions/login_action'
+import Header from './header/header'
+import './css/admin.less'
+
+const {Footer, Sider, Content } = Layout;
 
  class Admin extends Component {
 
@@ -18,10 +23,18 @@ import {deleteUserInfo} from '../../redux/actions/login_action'
 				return <Redirect to = '/login'/>
 			}
 		return (
-			<div>
-				<h2>hello,  {this.props.userInfo.user.username}</h2>
-				<button onClick = {this.logout}>退出登录</button>
-			</div>
+			    <Layout className = 'admin'>
+				  {/* <h2>hello,  {this.props.userInfo.user.username}</h2> */}
+				  {/* <button onClick = {this.logout}>退出登录</button> */}
+				
+					<Sider>Sider</Sider>
+					<Layout>
+						<Header/>
+						<Content>Content</Content>
+						<Footer>Footer</Footer>
+					</Layout>
+				</Layout>
+			
 		)
 	}
 }
