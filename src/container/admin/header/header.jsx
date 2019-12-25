@@ -1,8 +1,11 @@
 import React, { Component } from 'react'
 import { Button, Icon, Modal } from 'antd';
 import { connect } from 'react-redux'
+import {withRouter} from 'react-router-dom'
 import screenfull from 'screenfull'
 import dayjs from 'dayjs'
+import menuList from '../../../config/menu-config'
+import {saveMenuTitle} from '../../../redux/actions/menu_action'
 import { reqWeatherData } from '../../../api/index'
 import { deleteUserInfo } from '../../../redux/actions/login_action';
 
@@ -10,6 +13,13 @@ import './header.less'
 
 const { confirm } = Modal;
 
+
+//装饰器语法
+@connect(
+    state => ({ userInfo: state.userInfo,title:state.title }),
+    { deleteUserInfo,saveMenuTitle }
+)
+@withRouter
 class Header extends Component {
 
     //状态判断
@@ -80,12 +90,32 @@ class Header extends Component {
     componentWillUnmount() {
         clearInterval(this.timer)
     }
-
+  
+    //根据菜单的key  匹配到title
+    getTitle = (menuKey)=>{
+		
+		let title = ''
+		menuList.forEach((menuObj)=>{
+			if(menuObj.children instanceof Array){
+				let result = menuObj.children.find((menuChildrenObj)=>{
+					return menuChildrenObj.key === menuKey
+				})
+				if(result) title = result.title
+			}else{
+				if(menuObj.key === menuKey) title = menuObj.title
+			}
+		})
+		this.props.saveMenuTitle(title)
+		return title
+	}
     render() {
         let { username } = this.props.userInfo.user
         //获取天气信息
         let {img,weather,temperature} = this.state.weatherData
-
+        
+        //小标题
+        // console.log(this.props.history.location.pathname.split('/').reverser()[0]);
+        let menuKey = this.props.history.location.pathname.split('/').reverse()[0]
         return (
             <div className='header'>
                 <div className='header-top'>
@@ -97,7 +127,7 @@ class Header extends Component {
                 </div>
                 <div className='header-bottom'>
                     <div className='header-bottom-left'>
-                        <span>首页</span>
+                        <span>{this.props.title ||this.getTitle(menuKey)}</span>
                     </div>
                     <div className='header-bottom-right'>
                         <span>{this.state.date}</span>
@@ -112,7 +142,4 @@ class Header extends Component {
 }
 
 
-export default connect(
-    state => ({ userInfo: state.userInfo }),
-    { deleteUserInfo }
-)(Header)
+export default Header
